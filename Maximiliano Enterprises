@@ -1,0 +1,594 @@
+document.getElementById('stock-form').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const ticker = document.getElementById('ticker').value;
+    const apiKey = 'M7V61B7JP97OTIJ4'; // M7V61B7JP97OTIJ4
+    const url = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${ticker}&interval=1min&apikey=${apiKey}`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data['Time Series (1min)']) {
+            // Display data (you may need to adjust based on the API response structure)
+            const latestTime = Object.keys(data['Time Series (1min)'])[0];
+            const latestData = data['Time Series (1min)'][latestTime];
+
+            document.getElementById('stock-data').innerHTML = `
+                <h2>${ticker}</h2>
+                <p>Time: ${latestTime}</p>
+                <p>Open: $${latestData['1. open']}</p>
+                <p>High: $${latestData['2. high']}</p>
+                <p>Low: $${latestData['3. low']}</p>
+                <p>Close: $${latestData['4. close']}</p>
+                <p>Volume: ${latestData['5. volume']}</p>
+            `;
+        } else {
+            document.getElementById('stock-data').innerHTML = `<p>Error fetching data. Please try again.</p>`;
+        }
+    } catch (error) {
+        document.getElementById('stock-data').innerHTML = `<p>Error fetching data. Please try again.</p>`;
+    }
+});body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f4f4f4;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+}
+
+form {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+label {
+    font-size: 1.2em;
+    margin-right: 10px;
+}
+
+input[type="text"] {
+    padding: 8px;
+    font-size: 1em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    padding: 8px 12px;
+    font-size: 1em;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#stock-data {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    color: #007bff;
+}
+
+p {
+    font-size: 1.1em;
+    margin: 5px 0;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Market Data</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Maximiliano Enterprises</h1>
+    <form id="stock-form">
+        <label for="ticker">Enter Stock Ticker:</label>
+        <input type="text" id="ticker" name="ticker" required>
+        <button type="submit">Get Data</button>
+    </form>
+    <div id="stock-data"></div>
+    <script src="script.js"></script>
+</body>
+</html>
+document.getElementById('stock-form').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const ticker = document.getElementById('ticker').value;
+    const apiKey = 'M7V61B7JP97OTIJ4'; // Your API key here
+    const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&apikey=${apiKey}`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data['Time Series (Daily)']) {
+            const timeSeries = data['Time Series (Daily)'];
+            const labels = Object.keys(timeSeries).reverse();
+            const dataset = labels.map(date => {
+                const { '1. open': open, '2. high': high, '3. low': low, '4. close': close } = timeSeries[date];
+                return { x: date, o: parseFloat(open), h: parseFloat(high), l: parseFloat(low), c: parseFloat(close) };
+            }).reverse();
+
+            // Create the candlestick chart
+            new Chart(document.getElementById('candlestick-chart'), {
+                type: 'candlestick',
+                data: {
+                    datasets: [{
+                        label: ticker,
+                        data: dataset
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            document.getElementById('stock-data').innerHTML = `<p>Error fetching data. Please try again.</p>`;
+        }
+    } catch (error) {
+        document.getElementById('stock-data').innerHTML = `<p>Error fetching data. Please try again.</p>`;
+    }
+});
+document.getElementById('stock-form').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const ticker = document.getElementById('ticker').value;
+    const apiKey = 'M7V61B7JP97OTIJ4'; // Your API key here
+    const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&apikey=${apiKey}`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data['Time Series (Daily)']) {
+            const timeSeries = data['Time Series (Daily)'];
+            const labels = Object.keys(timeSeries).reverse();
+            const dataset = labels.map(date => {
+                const { '1. open': open, '2. high': high, '3. low': low, '4. close': close } = timeSeries[date];
+                return { x: new Date(date), o: parseFloat(open), h: parseFloat(high), l: parseFloat(low), c: parseFloat(close) };
+            }).reverse();
+
+            new Chart(document.getElementById('candlestick-chart'), {
+                type: 'candlestick',
+                data: {
+                    datasets: [{
+                        label: ticker,
+                        data: dataset
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Price'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            document.getElementById('stock-data').innerHTML = `<p>Error fetching data. Please try again.</p>`;
+        }
+    } catch (error) {
+        document.getElementById('stock-data').innerHTML = `<p>Error fetching data. Please try again.</p>`;
+    }
+});
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f4f4f4;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+}
+
+form {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+label {
+    font-size: 1.2em;
+    margin-right: 10px;
+}
+
+input[type="text"] {
+    padding: 8px;
+    font-size: 1em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    padding: 8px 12px;
+    font-size: 1em;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#stock-data {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+canvas {
+    width: 100% !important; /* Make sure the canvas fits the container */
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maximiliano Enterprises</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
+</head>
+<body>
+    <h1>Maximiliano Enterprises</h1>
+    <form id="stock-form">
+        <label for="ticker">Enter Stock Ticker:</label>
+        <input type="text" id="ticker" name="ticker" required>
+        <button type="submit">Get Data</button>
+    </form>
+    <div id="stock-data">
+        <canvas id="candlestick-chart" width="800" height="400"></canvas>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maximiliano Enterprises</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
+</head>
+<body>
+    <h1>Maximiliano Enterprises</h1>
+    <div id="chat-container">
+        <div id="chat-box"></div>
+        <input type="text" id="user-input" placeholder="Ask about stock prices..." />
+        <button id="send-button">Send</button>
+    </div>
+    <div id="chart-container">
+        <canvas id="candlestick-chart" width="800" height="400"></canvas>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+document.getElementById('send-button').addEventListener('click', async function() {
+    const userInput = document.getElementById('user-input').value;
+    document.getElementById('user-input').value = '';
+    addMessage('user', userInput);
+
+    const ticker = userInput.toUpperCase().trim();
+    if (!ticker) {
+        addMessage('system', 'Please enter a stock ticker.');
+        return;
+    }
+
+    const apiKey = 'M7V61B7JP97OTIJ4'; // Your API key here
+    const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&apikey=${apiKey}`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data['Time Series (Daily)']) {
+            const timeSeries = data['Time Series (Daily)'];
+            const labels = Object.keys(timeSeries).reverse();
+            const dataset = labels.map(date => {
+                const { '1. open': open, '2. high': high, '3. low': low, '4. close': close } = timeSeries[date];
+                return { x: new Date(date), o: parseFloat(open), h: parseFloat(high), l: parseFloat(low), c: parseFloat(close) };
+            }).reverse();
+
+            new Chart(document.getElementById('candlestick-chart'), {
+                type: 'candlestick',
+                data: {
+                    datasets: [{
+                        label: ticker,
+                        data: dataset
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Price'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            addMessage('system', `Here is the candlestick chart for ${ticker}.`);
+        } else {
+            addMessage('system', 'Error fetching data. Please try again.');
+        }
+    } catch (error) {
+        addMessage('system', 'Error fetching data. Please try again.');
+    }
+});
+
+function addMessage(sender, text) {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message', sender);
+    messageElement.textContent = text;
+    document.getElementById('chat-box').appendChild(messageElement);
+    document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+}
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f4f4f4;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+}
+
+#chat-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+}
+
+#chat-box {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+#user-input {
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    flex: 1;
+}
+
+#send-button {
+    padding: 10px;
+    font-size: 1em;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+#send-button:hover {
+    background-color: #0056b3;
+}
+
+.message {
+    margin: 5px 0;
+}
+
+.message.user {
+    color: #007bff;
+    text-align: right;
+}
+
+.message.system {
+    color: #333;
+    text-align: left;
+}
+
+#chart-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: white;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maximiliano Enterprises</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
+</head>
+<body>
+    <h1>Maximiliano Enterprises</h1>
+    <div id="chat-container">
+        <div id="chat-box"></div>
+        <input type="text" id="user-input" placeholder="Ask about stock prices..." />
+        <button id="send-button">Send</button>
+    </div>
+    <div id="chart-container">
+        <canvas id="candlestick-chart" width="800" height="400"></canvas>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f4f4f4;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+}
+
+#chat-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+}
+
+#chat-box {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+#user-input {
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    flex: 1;
+}
+
+#send-button {
+    padding: 10px;
+    font-size: 1em;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+#send-button:hover {
+    background-color: #0056b3;
+}
+
+.message {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+}
+
+.message.user {
+    color: #007bff;
+    text-align: right;
+    flex-direction: row-reverse;
+}
+
+.message.system {
+    color: #333;
+    text-align: left;
+}
+
+.message img.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0 10px;
+}
+
+#chat-box .message.system img.avatar {
+    background-image: url('king-avatar.png'); /* Path to your king image */
+    background-size: cover;
+    background-position: center;
+}
+
+#chat-box .message.user img.avatar {
+    display: none; /* Optionally hide user avatar */
+}
+
+#chart-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: white;
+}
+king-avatar.png
