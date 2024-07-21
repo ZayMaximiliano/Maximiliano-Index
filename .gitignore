@@ -110,3 +110,4 @@ replay_pid*
 </html> 
 -- get remote.origin.url
 git config --get remote.origin.url
+.class
