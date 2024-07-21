@@ -107,4 +107,6 @@ replay_pid*
         }
     </script>
 </body>
-</html>
+</html> 
+-- get remote.origin.url
+git config --get remote.origin.url
