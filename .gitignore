@@ -111,3 +111,4 @@ replay_pid*
 -- get remote.origin.url
 git config --get remote.origin.url
 .class
+git remote add origin <kingbot_url>
